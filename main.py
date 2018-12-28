@@ -1,13 +1,11 @@
 import sys, pickle
-from PySide2.QtGui import *
-from PySide2.QtWidgets import *
-from PySide2.QtCore import *
+import pyside2 as qt
 from simo_objects import SimoPath, SimoObject
 from save_and_load import parseScene
 
-class MainWindow(QMainWindow):
+class MainWindow(qt.QMainWindow):
     def __init__(self):
-        QMainWindow.__init__(self)
+        qt.QMainWindow.__init__(self)
         self.initUI()
 
     def initUI(self):
@@ -18,31 +16,31 @@ class MainWindow(QMainWindow):
         self.view.show()
 
         # Actions
-        exitAction = QAction('Exit', self)
+        exitAction = qt.QAction('Exit', self)
         exitAction.setStatusTip('Exit application')
         exitAction.triggered.connect(self.close)
         
-        saveAction = QAction('Save scene', self)
+        saveAction = qt.QAction('Save scene', self)
         saveAction.setStatusTip('Save scene')
         saveAction.triggered.connect(self.saveScene)
 
-        loadAction = QAction('Load scene', self)
+        loadAction = qt.QAction('Load scene', self)
         loadAction.setStatusTip('Load scene')
         loadAction.triggered.connect(self.loadScene)
 
-        listAction = QAction('List', self)
+        listAction = qt.QAction('List', self)
         listAction.setStatusTip('List items')
         listAction.triggered.connect(self.listItems)
 
-        printSelectedAction = QAction('Selected', self)
+        printSelectedAction = qt.QAction('Selected', self)
         printSelectedAction.setStatusTip('Print Selected items')
         printSelectedAction.triggered.connect(self.printSelected)
 
-        addSObjectAction = QAction('SObject', self)
+        addSObjectAction = qt.QAction('SObject', self)
         addSObjectAction.setStatusTip('Add SObject')
         addSObjectAction.triggered.connect(self.drawSObject)
 
-        addSPathAction = QAction('SPath', self)
+        addSPathAction = qt.QAction('SPath', self)
         addSPathAction.setStatusTip('Add SPath')
         addSPathAction.triggered.connect(self.drawSPath)
         
@@ -90,16 +88,16 @@ class MainWindow(QMainWindow):
             print(item)
 
     def drawSObject(self):
-        rect = QRectF(-100, -100, 50, 50)
+        rect = qt.QRectF(-100, -100, 50, 50)
         self.scene.addItem(SimoObject(rect, self.scene))
 
     def drawSPath(self):
-        path = QPainterPath()
+        path = qt.QPainterPath()
         path.moveTo(0, 0)
         path.lineTo(200, 100)
         self.scene.addItem(SimoPath(path, self.scene))
 
-class GraphicsScene(QGraphicsScene):
+class GraphicsScene(qt.QGraphicsScene):
     grid = 30
 
     def __init__(self, parent=None):
@@ -107,25 +105,25 @@ class GraphicsScene(QGraphicsScene):
         #self.setSceneRect(0, 0, 1000, 1000)
 
     def drawBackground(self, painter, rect):
-        painter.fillRect(rect, QColor(30, 30, 30))
+        painter.fillRect(rect, qt.QColor(30, 30, 30))
         left = int(rect.left()) - int((rect.left()) % self.grid)
         top = int(rect.top()) - int((rect.top()) % self.grid)
         right = int(rect.right())
         bottom = int(rect.bottom())
         lines = []
         for x in range(left, right, self.grid):
-            lines.append(QLine(x, top, x, bottom))
+            lines.append(qt.QLine(x, top, x, bottom))
         for y in range(top, bottom, self.grid):
-            lines.append(QLine(left, y, right, y))
-        painter.setPen(QPen(QColor(50, 50, 50)))
+            lines.append(qt.QLine(left, y, right, y))
+        painter.setPen(qt.QPen(qt.QColor(50, 50, 50)))
         painter.drawLines(lines)
     
-class GraphicsView(QGraphicsView):
+class GraphicsView(qt.QGraphicsView):
     def __init__(self, scene, parent=None):
         super(GraphicsView, self).__init__(scene, parent)
 
-        self.setDragMode(QGraphicsView.RubberBandDrag)
-        self.setRenderHint(QPainter.Antialiasing)
+        self.setDragMode(qt.QGraphicsView.RubberBandDrag)
+        self.setRenderHint(qt.QPainter.Antialiasing)
 
     def zoom(self, event):
         anchor = self.transformationAnchor()
@@ -142,28 +140,28 @@ class GraphicsView(QGraphicsView):
 
     def keyPressEvent(self, event):
         print(event.key(), event.text())
-        if event.modifiers() == Qt.ControlModifier:
-            self.setDragMode(QGraphicsView.ScrollHandDrag)
-        if event.key() == Qt.Key_Delete:
+        if event.modifiers() == qt.Qt.ControlModifier:
+            self.setDragMode(qt.QGraphicsView.ScrollHandDrag)
+        if event.key() == qt.Qt.Key_Delete:
             for item in self.scene().selectedItems():
                 self.scene().removeItem(item)
         super(GraphicsView, self).keyPressEvent(event)
 
     def keyReleaseEvent(self, event):
         if event.key() == 16777249: # ctrl
-            self.setDragMode(QGraphicsView.RubberBandDrag)
+            self.setDragMode(qt.QGraphicsView.RubberBandDrag)
         super(GraphicsView, self).keyReleaseEvent(event)
 
     def wheelEvent(self, event):
-        modifiers = QGuiApplication.keyboardModifiers()
-        if modifiers == Qt.ControlModifier:
+        modifiers = qt.QGuiApplication.keyboardModifiers()
+        if modifiers == qt.Qt.ControlModifier:
             self.zoom(event)
         super(GraphicsView, self).wheelEvent(event)
 
     #def mouseMoveEvent(self, event):
 
 if __name__ == '__main__':
-    app = QApplication(sys.argv)
+    app = qt.QApplication(sys.argv)
     main_window = MainWindow()
     main_window.resize(600, 600)
     main_window.show()
