@@ -1,11 +1,13 @@
 import sys, pickle
-from PySide2 import QtGui, QtWidgets, QtCore
+from PySide2.QtGui import *
+from PySide2.QtWidgets import *
+from PySide2.QtCore import *
 from simo_objects import SimoPath, SimoObject
 from save_and_load import parseScene
 
-class MainWindow(QtWidgets.QMainWindow):
+class MainWindow(QMainWindow):
     def __init__(self):
-        QtWidgets.QMainWindow.__init__(self)
+        QMainWindow.__init__(self)
         self.initUI()
 
     def initUI(self):
@@ -16,31 +18,31 @@ class MainWindow(QtWidgets.QMainWindow):
         self.view.show()
 
         # Actions
-        exitAction = QtWidgets.QAction('Exit', self)
+        exitAction = QAction('Exit', self)
         exitAction.setStatusTip('Exit application')
         exitAction.triggered.connect(self.close)
         
-        saveAction = QtWidgets.QAction('Save scene', self)
+        saveAction = QAction('Save scene', self)
         saveAction.setStatusTip('Save scene')
         saveAction.triggered.connect(self.saveScene)
 
-        loadAction = QtWidgets.QAction('Load scene', self)
+        loadAction = QAction('Load scene', self)
         loadAction.setStatusTip('Load scene')
         loadAction.triggered.connect(self.loadScene)
 
-        listAction = QtWidgets.QAction('List', self)
+        listAction = QAction('List', self)
         listAction.setStatusTip('List items')
         listAction.triggered.connect(self.listItems)
 
-        printSelectedAction = QtWidgets.QAction('Selected', self)
+        printSelectedAction = QAction('Selected', self)
         printSelectedAction.setStatusTip('Print Selected items')
         printSelectedAction.triggered.connect(self.printSelected)
 
-        addSObjectAction = QtWidgets.QAction('SObject', self)
+        addSObjectAction = QAction('SObject', self)
         addSObjectAction.setStatusTip('Add SObject')
         addSObjectAction.triggered.connect(self.drawSObject)
 
-        addSPathAction = QtWidgets.QAction('SPath', self)
+        addSPathAction = QAction('SPath', self)
         addSPathAction.setStatusTip('Add SPath')
         addSPathAction.triggered.connect(self.drawSPath)
         
@@ -55,8 +57,8 @@ class MainWindow(QtWidgets.QMainWindow):
         # Toolbar
         self.toolbar = self.addToolBar('toolbar')
         self.toolbar.addAction(exitAction)
-        self.toolbar.addAction(saveAction)
-        self.toolbar.addAction(loadAction)
+        #self.toolbar.addAction(saveAction)
+        #self.toolbar.addAction(loadAction)
         self.toolbar.addSeparator()
         self.toolbar.addAction(listAction)
         self.toolbar.addAction(printSelectedAction)
@@ -88,16 +90,16 @@ class MainWindow(QtWidgets.QMainWindow):
             print(item)
 
     def drawSObject(self):
-        rect = QtCore.QRectF(-100, -100, 50, 50)
+        rect = QRectF(-100, -100, 50, 50)
         self.scene.addItem(SimoObject(rect, self.scene))
 
     def drawSPath(self):
-        path = QtGui.QPainterPath()
+        path = QPainterPath()
         path.moveTo(0, 0)
         path.lineTo(200, 100)
         self.scene.addItem(SimoPath(path, self.scene))
 
-class GraphicsScene(QtWidgets.QGraphicsScene):
+class GraphicsScene(QGraphicsScene):
     grid = 30
 
     def __init__(self, parent=None):
@@ -105,25 +107,25 @@ class GraphicsScene(QtWidgets.QGraphicsScene):
         #self.setSceneRect(0, 0, 1000, 1000)
 
     def drawBackground(self, painter, rect):
-        painter.fillRect(rect, QtGui.QColor(30, 30, 30))
+        painter.fillRect(rect, QColor(30, 30, 30))
         left = int(rect.left()) - int((rect.left()) % self.grid)
         top = int(rect.top()) - int((rect.top()) % self.grid)
         right = int(rect.right())
         bottom = int(rect.bottom())
         lines = []
         for x in range(left, right, self.grid):
-            lines.append(QtCore.QLine(x, top, x, bottom))
+            lines.append(QLine(x, top, x, bottom))
         for y in range(top, bottom, self.grid):
-            lines.append(QtCore.QLine(left, y, right, y))
-        painter.setPen(QtGui.QPen(QtGui.QColor(50, 50, 50)))
+            lines.append(QLine(left, y, right, y))
+        painter.setPen(QPen(QColor(50, 50, 50)))
         painter.drawLines(lines)
     
-class GraphicsView(QtWidgets.QGraphicsView):
+class GraphicsView(QGraphicsView):
     def __init__(self, scene, parent=None):
         super(GraphicsView, self).__init__(scene, parent)
 
-        self.setDragMode(QtWidgets.QGraphicsView.RubberBandDrag)
-        self.setRenderHint(QtGui.QPainter.Antialiasing)
+        self.setDragMode(QGraphicsView.RubberBandDrag)
+        self.setRenderHint(QPainter.Antialiasing)
 
     def zoom(self, event):
         anchor = self.transformationAnchor()
@@ -140,28 +142,28 @@ class GraphicsView(QtWidgets.QGraphicsView):
 
     def keyPressEvent(self, event):
         print(event.key(), event.text())
-        if event.modifiers() == QtCore.Qt.ControlModifier:
-            self.setDragMode(QtWidgets.QGraphicsView.ScrollHandDrag)
-        if event.key() == QtCore.Qt.Key_Delete:
+        if event.modifiers() == Qt.ControlModifier:
+            self.setDragMode(QGraphicsView.ScrollHandDrag)
+        if event.key() == Qt.Key_Delete:
             for item in self.scene().selectedItems():
                 self.scene().removeItem(item)
         super(GraphicsView, self).keyPressEvent(event)
 
     def keyReleaseEvent(self, event):
         if event.key() == 16777249: # ctrl
-            self.setDragMode(QtWidgets.QGraphicsView.RubberBandDrag)
+            self.setDragMode(QGraphicsView.RubberBandDrag)
         super(GraphicsView, self).keyReleaseEvent(event)
 
     def wheelEvent(self, event):
-        modifiers = QtGui.QGuiApplication.keyboardModifiers()
-        if modifiers == QtCore.Qt.ControlModifier:
+        modifiers = QGuiApplication.keyboardModifiers()
+        if modifiers == Qt.ControlModifier:
             self.zoom(event)
         super(GraphicsView, self).wheelEvent(event)
 
     #def mouseMoveEvent(self, event):
 
 if __name__ == '__main__':
-    app = QtWidgets.QApplication(sys.argv)
+    app = QApplication(sys.argv)
     main_window = MainWindow()
     main_window.resize(600, 600)
     main_window.show()
