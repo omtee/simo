@@ -1,6 +1,6 @@
-import sys, pickle
+import sys
 import pyside2 as qt
-from simo_objects import SimoPath, SimoObject
+from simo_objects import SimoPath, SimoObject, ObjectNode
 from save_and_load import parseScene
 
 class MainWindow(qt.QMainWindow):
@@ -139,7 +139,7 @@ class GraphicsView(qt.QGraphicsView):
         self.setTransformationAnchor(anchor)
 
     def keyPressEvent(self, event):
-        print(event.key(), event.text())
+        #print(event.key(), event.text())
         if event.modifiers() == qt.Qt.ControlModifier:
             self.setDragMode(qt.QGraphicsView.ScrollHandDrag)
         if event.key() == qt.Qt.Key_Delete:
@@ -157,6 +157,27 @@ class GraphicsView(qt.QGraphicsView):
         if modifiers == qt.Qt.ControlModifier:
             self.zoom(event)
         super(GraphicsView, self).wheelEvent(event)
+
+    def mousePressEvent(self, event):
+        if event.button() == qt.Qt.LeftButton:
+            item = self.itemAt(event.pos())
+            if isinstance(item, ObjectNode):
+                if self.drawing_line:
+                    self.drawing_line = False
+                else:
+                    print('node')
+                    self.drawing_line = True
+                    item.add_connection()
+        super(GraphicsView, self).mousePressEvent(event)
+                
+
+        '''if self.drawing_line:
+                self.drawing_line = False
+                self.edge.update_p2(event.pos())
+
+            elif self.edge == None:
+                self.edge = Edge(self)
+                self.drawing_line = True'''
 
     #def mouseMoveEvent(self, event):
 

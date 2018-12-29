@@ -61,23 +61,45 @@ class ObjectNode(qt.QGraphicsRectItem):
     def __init__(self, rect, obj):
         super(ObjectNode, self).__init__(rect, parent=obj)
 
-        self.edges = []
+        self.edge = None
+        self.drawing_line = False
 
         self.setZValue(1)
         self.setBrush(qt.QBrush(qt.Qt.red))
         self.setPen(qt.QPen(qt.Qt.black, 0.5))
 
-    #def mousePressEvent(self, event):
-    #    if event.button == qt.Qt.LeftButton:
-    #        edge = Edge(self)
+    def add_connection(self):
+        print('add line p1')
+    '''def mousePressEvent(self, event):
+        if event.button() == qt.Qt.LeftButton:
+            if self.drawing_line:
+                self.drawing_line = False
+                self.edge.update_p2(event.pos())
+
+            elif self.edge == None:
+                self.edge = Edge(self)
+                self.drawing_line = True'''
+
+
+    #def mouseMoveEvent(self, event):
+    #    pass
 
 class Edge(qt.QGraphicsLineItem):
     def __init__(self, source, dest=None, parent=None):
-        super(Edge, self).__init__(self, parent)
+        pos_source = source.rect()
+        p1 = pos_source.center()
+        p2 = pos_source.center()
+        p2.setX(p2.x() + 10)
+        line = qt.QLineF(p1, p2)
+        super(Edge, self).__init__(line, parent=source)
+
+        self.setPen(qt.QPen(qt.Qt.gray, 0.5))
         self.source = source
-        self.dest = dest
-
-
+    
+    def update_p2(self, pos):
+        line = self.line()
+        line.setP2(pos)
+        self.setLine(line)
 
 class SimoObject(qt.QGraphicsRectItem):
     def __init__(self, rect, scene):
@@ -89,8 +111,8 @@ class SimoObject(qt.QGraphicsRectItem):
         right = rect.right()
 
         size = 6
-        node_left = qt.QRectF(left, middle_x, size, size)
-        node_right = qt.QRectF(right, middle_x, size, size)
+        node_left = qt.QRectF(left - 3, middle_x - 3, size, size)
+        node_right = qt.QRectF(right - 3, middle_x - 3, size, size)
 
         self.nodes = []
         self.nodes.append(ObjectNode(node_left, self))
@@ -98,6 +120,3 @@ class SimoObject(qt.QGraphicsRectItem):
 
         self.setFlags(qt.QGraphicsItem.ItemIsMovable |
                       qt.QGraphicsItem.ItemIsSelectable)
-
-    def __getstate__(self):
-        return self.rect()
