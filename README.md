@@ -1,2 +1,2 @@
 # simo
-Olli's simulator
+The beginning of something great
