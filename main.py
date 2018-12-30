@@ -152,7 +152,6 @@ class GraphicsView(qt.QGraphicsView):
 
     def keyReleaseEvent(self, event):
         if event.key() == 16777249: # ctrl
-            print('release')
             self.setDragMode(qt.QGraphicsView.RubberBandDrag)
         super(GraphicsView, self).keyReleaseEvent(event)
 
@@ -163,25 +162,28 @@ class GraphicsView(qt.QGraphicsView):
         super(GraphicsView, self).wheelEvent(event)
 
     def mousePressEvent(self, event):
-        if event.button() == qt.Qt.LeftButton:
-            if self.drawing_line:
-                print('update p2')
-                self.drawing_line = False
-                self.edge.update_p2(self.mapToScene(event.pos()))
+        if event.button() == qt.Qt.LeftButton and self.dragMode() == qt.QGraphicsView.RubberBandDrag:
             item = self.itemAt(event.pos())
+            if self.drawing_line:
+                print('drawing True')
+                if isinstance(item, ObjectNode):
+                    print('is Node')
+                    if item.free:
+                        print('is free')
+                        item.connect_node(self.node)
+                self.drawing_line = False
+                #self.node.update_p2(self.mapToScene(event.pos()))
+            #el
             if isinstance(item, ObjectNode):
-                if self.drawing_line:
-                    self.drawing_line = False
-                else:
-                    print('node')
+                if item.free:
+                    self.node = item
+                    self.node.add_connection()
                     self.drawing_line = True
-                    self.edge = item
-                    self.edge.add_connection()
         super(GraphicsView, self).mousePressEvent(event)
 
     def mouseMoveEvent(self, event):
         if self.drawing_line:
-            self.edge.update_p2(self.mapToScene(event.pos()))
+            self.node.edge.updateElement(0, self.mapToScene(event.pos()))
         super(GraphicsView, self).mouseMoveEvent(event)
 
 if __name__ == '__main__':
