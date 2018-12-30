@@ -69,27 +69,16 @@ class ObjectNode(qt.QGraphicsRectItem):
         self.setPen(qt.QPen(qt.Qt.black, 0.5))
 
     def add_connection(self):
-        print('add line p1')
-    '''def mousePressEvent(self, event):
-        if event.button() == qt.Qt.LeftButton:
-            if self.drawing_line:
-                self.drawing_line = False
-                self.edge.update_p2(event.pos())
+        self.edge = Edge(self)
+        return self.edge
 
-            elif self.edge == None:
-                self.edge = Edge(self)
-                self.drawing_line = True'''
-
-
-    #def mouseMoveEvent(self, event):
-    #    pass
+    def update_p2(self, pos):
+        self.edge.update_p2(pos)
 
 class Edge(qt.QGraphicsLineItem):
     def __init__(self, source, dest=None, parent=None):
         pos_source = source.rect()
-        p1 = pos_source.center()
-        p2 = pos_source.center()
-        p2.setX(p2.x() + 10)
+        p1 = p2 = pos_source.center()
         line = qt.QLineF(p1, p2)
         super(Edge, self).__init__(line, parent=source)
 
@@ -98,7 +87,7 @@ class Edge(qt.QGraphicsLineItem):
     
     def update_p2(self, pos):
         line = self.line()
-        line.setP2(pos)
+        line.setP2(self.parentItem().mapFromScene(pos))
         self.setLine(line)
 
 class SimoObject(qt.QGraphicsRectItem):

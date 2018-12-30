@@ -122,6 +122,9 @@ class GraphicsView(qt.QGraphicsView):
     def __init__(self, scene, parent=None):
         super(GraphicsView, self).__init__(scene, parent)
 
+        self.drawing_line = False
+
+        self.setMouseTracking(True)
         self.setDragMode(qt.QGraphicsView.RubberBandDrag)
         self.setRenderHint(qt.QPainter.Antialiasing)
 
@@ -149,6 +152,7 @@ class GraphicsView(qt.QGraphicsView):
 
     def keyReleaseEvent(self, event):
         if event.key() == 16777249: # ctrl
+            print('release')
             self.setDragMode(qt.QGraphicsView.RubberBandDrag)
         super(GraphicsView, self).keyReleaseEvent(event)
 
@@ -160,6 +164,10 @@ class GraphicsView(qt.QGraphicsView):
 
     def mousePressEvent(self, event):
         if event.button() == qt.Qt.LeftButton:
+            if self.drawing_line:
+                print('update p2')
+                self.drawing_line = False
+                self.edge.update_p2(self.mapToScene(event.pos()))
             item = self.itemAt(event.pos())
             if isinstance(item, ObjectNode):
                 if self.drawing_line:
@@ -167,19 +175,14 @@ class GraphicsView(qt.QGraphicsView):
                 else:
                     print('node')
                     self.drawing_line = True
-                    item.add_connection()
+                    self.edge = item
+                    self.edge.add_connection()
         super(GraphicsView, self).mousePressEvent(event)
-                
 
-        '''if self.drawing_line:
-                self.drawing_line = False
-                self.edge.update_p2(event.pos())
-
-            elif self.edge == None:
-                self.edge = Edge(self)
-                self.drawing_line = True'''
-
-    #def mouseMoveEvent(self, event):
+    def mouseMoveEvent(self, event):
+        if self.drawing_line:
+            self.edge.update_p2(self.mapToScene(event.pos()))
+        super(GraphicsView, self).mouseMoveEvent(event)
 
 if __name__ == '__main__':
     app = qt.QApplication(sys.argv)
